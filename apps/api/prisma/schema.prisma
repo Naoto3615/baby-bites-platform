@@ -1,0 +1,264 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum FeedingStage {
+  STAGE_5_6
+  STAGE_7_8
+  STAGE_9_11
+  STAGE_12_18
+}
+
+enum UserRole {
+  PARENT
+  MODERATOR
+  ADMIN
+}
+
+enum AuthProvider {
+  GOOGLE
+  LINE
+  DEV
+}
+
+enum ReportTargetType {
+  RECIPE
+  COMMUNITY_POST
+  COMMUNITY_COMMENT
+  USER
+}
+
+enum ReportStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  REJECTED
+}
+
+enum ModerationActionType {
+  HIDE_CONTENT
+  UNHIDE_CONTENT
+  WARN_USER
+  SUSPEND_USER
+  RESTORE_USER
+  DELETE_CONTENT
+}
+
+model User {
+  id                String              @id @default(cuid())
+  displayName       String
+  avatarUrl         String?
+  bio               String?
+  role              UserRole            @default(PARENT)
+  isActive          Boolean             @default(true)
+  lastLoginAt       DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  recipes           Recipe[]
+  posts             CommunityPost[]
+  comments          CommunityComment[]
+  authProviders     UserAuthProvider[]
+  sessions          UserSession[]
+  reportsFiled      Report[]            @relation("ReportReporter")
+  reportsResolved   Report[]            @relation("ReportResolver")
+  moderationActions ModerationAction[]
+  uploadedImages    RecipeImage[]       @relation("RecipeImageUploader")
+}
+
+model Recipe {
+  id          String              @id @default(cuid())
+  title       String
+  description String
+  stage       FeedingStage
+  prepMinutes Int
+  cookMinutes Int
+  servings    Int
+  allergens   String[]            @default([])
+  coverImageUrl String?
+  isHidden    Boolean             @default(false)
+  published   Boolean             @default(true)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  authorId    String
+  author      User                @relation(fields: [authorId], references: [id])
+  ingredients RecipeIngredient[]
+  steps       RecipeStep[]
+  tags        RecipeTag[]
+  images      RecipeImage[]
+
+  @@index([stage])
+  @@index([authorId])
+  @@index([isHidden, createdAt])
+}
+
+model RecipeIngredient {
+  id       String @id @default(cuid())
+  recipeId String
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  name     String
+  amount   String
+  note     String?
+  order    Int
+
+  @@index([recipeId, order])
+}
+
+model RecipeStep {
+  id          String @id @default(cuid())
+  recipeId    String
+  recipe      Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  order       Int
+  instruction String
+
+  @@index([recipeId, order])
+}
+
+model RecipeTag {
+  id       String @id @default(cuid())
+  recipeId String
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  value    String
+
+  @@index([value])
+  @@index([recipeId])
+}
+
+model CommunityTopic {
+  id          String          @id @default(cuid())
+  name        String          @unique
+  description String
+  createdAt   DateTime        @default(now())
+  posts       CommunityPost[]
+}
+
+model CommunityPost {
+  id        String             @id @default(cuid())
+  topicId   String
+  topic     CommunityTopic     @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User               @relation(fields: [authorId], references: [id])
+  title     String
+  body      String
+  stage     FeedingStage?
+  isHidden  Boolean            @default(false)
+  likes     Int                @default(0)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  comments  CommunityComment[]
+
+  @@index([topicId, createdAt])
+  @@index([authorId])
+  @@index([isHidden, createdAt])
+}
+
+model CommunityComment {
+  id        String        @id @default(cuid())
+  postId    String
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User          @relation(fields: [authorId], references: [id])
+  body      String
+  isHidden  Boolean       @default(false)
+  createdAt DateTime      @default(now())
+
+  @@index([postId, createdAt])
+  @@index([isHidden, createdAt])
+}
+
+model ExternalResourceCache {
+  id        String   @id @default(cuid())
+  provider  String
+  queryKey  String
+  payload   Json
+  fetchedAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@unique([provider, queryKey])
+  @@index([expiresAt])
+}
+
+model UserAuthProvider {
+  id             String       @id @default(cuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider       AuthProvider
+  providerUserId String
+  email          String?
+  rawProfile     Json?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([provider, providerUserId])
+  @@unique([userId, provider])
+  @@index([email])
+}
+
+model UserSession {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
+  ipAddress String?
+  userAgent String?
+
+  @@index([userId, expiresAt])
+}
+
+model RecipeImage {
+  id           String   @id @default(cuid())
+  recipeId     String
+  recipe       Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  url          String
+  caption      String?
+  uploadedAt   DateTime @default(now())
+  uploadedById String?
+  uploadedBy   User?    @relation("RecipeImageUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  @@index([recipeId, uploadedAt])
+}
+
+model Report {
+  id             String         @id @default(cuid())
+  targetType     ReportTargetType
+  targetId       String
+  reason         String
+  detail         String?
+  status         ReportStatus   @default(OPEN)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  reporterId     String
+  reporter       User           @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  resolverId     String?
+  resolver       User?          @relation("ReportResolver", fields: [resolverId], references: [id], onDelete: SetNull)
+  resolutionNote String?
+  resolvedAt     DateTime?
+  actions        ModerationAction[]
+
+  @@index([status, createdAt])
+  @@index([targetType, targetId])
+  @@index([reporterId, createdAt])
+}
+
+model ModerationAction {
+  id         String               @id @default(cuid())
+  reportId   String?
+  report     Report?              @relation(fields: [reportId], references: [id], onDelete: SetNull)
+  moderatorId String
+  moderator  User                 @relation(fields: [moderatorId], references: [id], onDelete: Cascade)
+  actionType ModerationActionType
+  targetType ReportTargetType
+  targetId   String
+  note       String?
+  createdAt  DateTime             @default(now())
+
+  @@index([targetType, targetId, createdAt])
+  @@index([moderatorId, createdAt])
+}
