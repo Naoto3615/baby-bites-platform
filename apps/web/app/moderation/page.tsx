@@ -143,27 +143,27 @@ export default function ModerationPage() {
   return (
     <main className="pb-16 pt-8 md:pt-12">
       <section className="surface rounded-3xl p-6 md:p-8">
-        <p className="text-xs tracking-[0.16em] text-cyan-300">MODERATION</p>
-        <h1 className="mt-3 text-3xl font-semibold md:text-4xl">通報とモデレーション</h1>
-        <p className="mt-3 text-sm text-slate-300 md:text-base">
-          一般ユーザーは通報、モデレーター以上は対応更新とダッシュボード確認が可能です。
+        <p className="eyebrow">SAFE COMMUNITY</p>
+        <h1 className="mt-3 font-[var(--font-display)] text-3xl font-extrabold md:text-4xl">安心サポート</h1>
+        <p className="muted mt-3 text-sm md:text-base">
+          みんなが気持ちよく使えるよう、気になる投稿は通報できる仕組みにしています。
         </p>
-        {message ? <p className="mt-4 text-sm text-cyan-200">{message}</p> : null}
+        {message ? <p className="notice mt-4 text-sm">{message}</p> : null}
       </section>
 
       <section className="mt-5">
         <article className="surface rounded-2xl p-4">
           <h2 className="text-lg font-semibold">通報を作成</h2>
           <form className="mt-3 grid gap-2 md:grid-cols-2" onSubmit={handleCreateReport}>
-            <select className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm" value={targetType} onChange={(e) => setTargetType(e.target.value as ReportTargetType)}>
+            <select className="field px-3 py-2 text-sm" value={targetType} onChange={(e) => setTargetType(e.target.value as ReportTargetType)}>
               {reportTargets.map((target) => (
                 <option key={target} value={target}>{target}</option>
               ))}
             </select>
-            <input className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm" placeholder="targetId" value={targetId} onChange={(e) => setTargetId(e.target.value)} />
-            <input className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm md:col-span-2" placeholder="理由" value={reason} onChange={(e) => setReason(e.target.value)} />
-            <textarea className="min-h-24 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm md:col-span-2" placeholder="詳細" value={detail} onChange={(e) => setDetail(e.target.value)} />
-            <button className="rounded-lg bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-900 md:col-span-2" type="submit" disabled={!token}>通報する</button>
+            <input className="field px-3 py-2 text-sm" placeholder="targetId" value={targetId} onChange={(e) => setTargetId(e.target.value)} />
+            <input className="field px-3 py-2 text-sm md:col-span-2" placeholder="理由" value={reason} onChange={(e) => setReason(e.target.value)} />
+            <textarea className="field min-h-24 px-3 py-2 text-sm md:col-span-2" placeholder="詳細" value={detail} onChange={(e) => setDetail(e.target.value)} />
+            <button className="btn-main px-4 py-2 text-sm md:col-span-2" type="submit" disabled={!token}>通報する</button>
           </form>
         </article>
       </section>
@@ -199,7 +199,7 @@ export default function ModerationPage() {
 
                 <div className="mt-3 grid gap-2 md:grid-cols-3">
                   <select
-                    className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
+                    className="field px-3 py-2 text-sm"
                     value={statusMap[report.id] ?? report.status}
                     onChange={(e) =>
                       setStatusMap((prev) => ({
@@ -214,7 +214,7 @@ export default function ModerationPage() {
                   </select>
 
                   <select
-                    className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
+                    className="field px-3 py-2 text-sm"
                     value={actionMap[report.id] ?? ''}
                     onChange={(e) =>
                       setActionMap((prev) => ({
@@ -230,7 +230,7 @@ export default function ModerationPage() {
                   </select>
 
                   <input
-                    className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
+                    className="field px-3 py-2 text-sm"
                     placeholder="対応メモ"
                     value={noteMap[report.id] ?? ''}
                     onChange={(e) =>
@@ -243,7 +243,7 @@ export default function ModerationPage() {
                 </div>
 
                 <button
-                  className="mt-3 rounded-lg bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-900"
+                  className="mt-3 btn-main px-4 py-2 text-sm"
                   type="button"
                   onClick={() => void handleModerate(report.id)}
                 >

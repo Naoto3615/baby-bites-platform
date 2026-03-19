@@ -14,9 +14,11 @@ export default async function RecipesPage() {
   return (
     <main className="pb-16 pt-8 md:pt-12">
       <section className="surface rounded-3xl p-6 md:p-8">
-        <p className="text-xs tracking-[0.16em] text-cyan-300">RECIPES</p>
-        <h1 className="mt-3 text-3xl font-semibold md:text-4xl">離乳食レシピ</h1>
-        <p className="mt-3 text-sm text-slate-300 md:text-base">月齢ステージ・アレルゲン・調理時間を軸に絞り込み可能な構成を想定しています。</p>
+        <p className="eyebrow">BABY FOOD RECIPES</p>
+        <h1 className="mt-3 font-[var(--font-display)] text-3xl font-extrabold md:text-4xl">月齢で選べる離乳食レシピ</h1>
+        <p className="muted mt-3 text-sm md:text-base">
+          「今日どれを作ればいい？」に迷わないよう、月齢・調理時間・タグで探しやすくしています。
+        </p>
       </section>
 
       <section className="mt-5 grid-cards">
@@ -30,9 +32,9 @@ export default async function RecipesPage() {
                 className="mb-3 h-40 w-full rounded-xl object-cover"
               />
             ) : null}
-            <p className="text-xs text-cyan-200">{stageLabel[recipe.stage] ?? recipe.stage}</p>
+            <p className="text-xs text-cyan-200">対象: {stageLabel[recipe.stage] ?? recipe.stage}</p>
             <h2 className="mt-2 text-lg font-semibold">{recipe.title}</h2>
-            <p className="mt-2 text-sm text-slate-300">{recipe.description}</p>
+            <p className="muted mt-2 text-sm">{recipe.description}</p>
             <p className="mt-3 text-xs text-slate-400">
               準備 {recipe.prepMinutes}分 / 調理 {recipe.cookMinutes}分 / {recipe.servings}食分
             </p>

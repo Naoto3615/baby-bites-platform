@@ -147,12 +147,12 @@ export default function AccountPage() {
   return (
     <main className="pb-16 pt-8 md:pt-12">
       <section className="surface rounded-3xl p-6 md:p-8">
-        <p className="text-xs tracking-[0.16em] text-cyan-300">ACCOUNT</p>
-        <h1 className="mt-3 text-3xl font-semibold md:text-4xl">認証とユーザー管理</h1>
-        <p className="mt-3 text-sm text-slate-300 md:text-base">
-          Google/LINE OAuthの導線、開発用ログイン、プロフィール更新に対応しています。
+        <p className="eyebrow">FAMILY ACCOUNT</p>
+        <h1 className="mt-3 font-[var(--font-display)] text-3xl font-extrabold md:text-4xl">家族アカウント設定</h1>
+        <p className="muted mt-3 text-sm md:text-base">
+          ログイン方法の設定、プロフィール更新、アカウント確認をひとつの画面で行えます。
         </p>
-        {message ? <p className="mt-4 text-sm text-cyan-200">{message}</p> : null}
+        {message ? <p className="notice mt-4 text-sm">{message}</p> : null}
       </section>
 
       <section className="mt-5 grid gap-3 md:grid-cols-2">
@@ -160,24 +160,24 @@ export default function AccountPage() {
           <h2 className="text-lg font-semibold">開発用ログイン</h2>
           <form className="mt-3 grid gap-2" onSubmit={handleDevLogin}>
             <input
-              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
+              className="field px-3 py-2 text-sm"
               placeholder="表示名"
               value={devDisplayName}
               onChange={(e) => setDevDisplayName(e.target.value)}
             />
             <input
-              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
+              className="field px-3 py-2 text-sm"
               placeholder="メール"
               value={devEmail}
               onChange={(e) => setDevEmail(e.target.value)}
             />
             <input
-              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
+              className="field px-3 py-2 text-sm"
               placeholder="providerUserId"
               value={devProviderUserId}
               onChange={(e) => setDevProviderUserId(e.target.value)}
             />
-            <button className="rounded-lg bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-900" type="submit">
+            <button className="btn-main px-4 py-2 text-sm" type="submit">
               ログイン
             </button>
           </form>
@@ -188,7 +188,7 @@ export default function AccountPage() {
           <h2 className="text-lg font-semibold">Google/LINE OAuth</h2>
           <form className="mt-3 grid gap-2" onSubmit={handleOauthLogin}>
             <select
-              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
+              className="field px-3 py-2 text-sm"
               value={oauthProvider}
               onChange={(e) => setOauthProvider(e.target.value as 'GOOGLE' | 'LINE')}
             >
@@ -196,12 +196,12 @@ export default function AccountPage() {
               <option value="LINE">LINE</option>
             </select>
             <textarea
-              className="min-h-24 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
+              className="field min-h-24 px-3 py-2 text-sm"
               placeholder="id_token または access_token"
               value={oauthToken}
               onChange={(e) => setOauthToken(e.target.value)}
             />
-            <button className="rounded-lg bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-900" type="submit">
+            <button className="btn-main px-4 py-2 text-sm" type="submit">
               トークンでログイン
             </button>
           </form>
@@ -224,7 +224,7 @@ export default function AccountPage() {
           )}
           <div className="mt-3 flex flex-wrap gap-2">
             <button
-              className="rounded-lg border border-slate-600 px-4 py-2 text-sm"
+              className="btn-sub px-4 py-2 text-sm"
               type="button"
               onClick={() => void handleRefreshMe()}
               disabled={!token}
@@ -232,7 +232,7 @@ export default function AccountPage() {
               ユーザー再取得
             </button>
             <button
-              className="rounded-lg border border-slate-600 px-4 py-2 text-sm"
+              className="btn-sub px-4 py-2 text-sm"
               type="button"
               onClick={handleLogout}
               disabled={!token}
@@ -246,24 +246,24 @@ export default function AccountPage() {
           <h2 className="text-lg font-semibold">プロフィール更新</h2>
           <form className="mt-3 grid gap-2" onSubmit={handleUpdateProfile}>
             <input
-              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
+              className="field px-3 py-2 text-sm"
               placeholder="表示名"
               value={profileDisplayName}
               onChange={(e) => setProfileDisplayName(e.target.value)}
             />
             <input
-              className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
+              className="field px-3 py-2 text-sm"
               placeholder="アバターURL"
               value={profileAvatarUrl}
               onChange={(e) => setProfileAvatarUrl(e.target.value)}
             />
             <textarea
-              className="min-h-24 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
+              className="field min-h-24 px-3 py-2 text-sm"
               placeholder="自己紹介"
               value={profileBio}
               onChange={(e) => setProfileBio(e.target.value)}
             />
-            <button className="rounded-lg bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-900" type="submit" disabled={!token}>
+            <button className="btn-main px-4 py-2 text-sm" type="submit" disabled={!token}>
               更新
             </button>
           </form>

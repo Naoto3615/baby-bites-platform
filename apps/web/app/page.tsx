@@ -2,72 +2,76 @@ import Link from 'next/link';
 import { getCommunityPosts, getRecipes, getTopics } from './lib/api';
 
 export default async function HomePage() {
-  const [recipes, topics, posts] = await Promise.all([getRecipes(), getTopics(), getCommunityPosts()]);
+  const [recipes, topics, posts] = await Promise.all([
+    getRecipes(),
+    getTopics(),
+    getCommunityPosts(),
+  ]);
 
   return (
     <main className="pb-16 pt-8 md:pt-12">
-      <section className="surface rounded-3xl p-6 md:p-8">
-        <p className="text-xs tracking-[0.18em] text-cyan-300">BABY FOOD + COMMUNITY + RESOURCES</p>
-        <h1 className="mt-3 max-w-3xl text-3xl font-semibold leading-tight md:text-5xl">
-          子育て世代向けの離乳食プラットフォームを、モダン構成で本格開発
+      <section className="surface rounded-3xl p-6 md:p-9">
+        <p className="eyebrow">FOR NEW MOMS & DADS</p>
+        <h1 className="mt-3 max-w-3xl font-[var(--font-display)] text-3xl font-extrabold leading-tight md:text-5xl">
+          はじめての離乳食を、
+          <br />
+          やさしく、迷わず、続けられる形に。
         </h1>
-        <p className="mt-4 max-w-3xl text-sm text-slate-300 md:text-base">
-          月齢別レシピ、コミュニティ、外部データ連携（Google/Yahoo）を統合したプロダクトの初期実装です。
+        <p className="muted mt-4 max-w-3xl text-sm md:text-base">
+          忙しい毎日の中でも「今日これなら作れそう」と思えるレシピ、同じ悩みを持つ保護者との相談、
+          近くで使える子育て情報をひとつにまとめました。
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
-          <Link href="/recipes" className="rounded-full bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-900">
-            レシピを見る
+          <Link href="/recipes" className="btn-main px-4 py-2 text-sm">
+            レシピを探す
           </Link>
-          <Link href="/community" className="rounded-full border border-slate-500 px-4 py-2 text-sm font-semibold">
-            コミュニティを見る
+          <Link href="/community" className="btn-sub px-4 py-2 text-sm">
+            相談ひろばを見る
           </Link>
-          <Link href="/resources" className="rounded-full border border-slate-500 px-4 py-2 text-sm font-semibold">
-            生活支援情報を見る
+          <Link href="/resources" className="btn-sub px-4 py-2 text-sm">
+            お役立ち情報を見る
           </Link>
-          <Link href="/studio" className="rounded-full border border-slate-500 px-4 py-2 text-sm font-semibold">
-            投稿スタジオ
-          </Link>
-          <Link href="/account" className="rounded-full border border-slate-500 px-4 py-2 text-sm font-semibold">
-            アカウント
+          <Link href="/studio" className="btn-sub px-4 py-2 text-sm">
+            レシピを投稿する
           </Link>
         </div>
       </section>
 
       <section className="mt-5 grid-cards">
         <article className="surface rounded-2xl p-4">
-          <p className="text-xs text-slate-400">Recipes</p>
-          <h2 className="mt-2 text-2xl font-semibold">{recipes.length}</h2>
-          <p className="mt-2 text-sm text-slate-300">離乳食レシピ登録数（表示中）</p>
+          <p className="text-xs text-slate-400">公開レシピ</p>
+          <h2 className="mt-2 font-[var(--font-display)] text-3xl font-extrabold">{recipes.length}</h2>
+          <p className="muted mt-2 text-sm">月齢に合わせて選べるレシピ数</p>
         </article>
         <article className="surface rounded-2xl p-4">
-          <p className="text-xs text-slate-400">Topics</p>
-          <h2 className="mt-2 text-2xl font-semibold">{topics.length}</h2>
-          <p className="mt-2 text-sm text-slate-300">コミュニティトピック数</p>
+          <p className="text-xs text-slate-400">相談トピック</p>
+          <h2 className="mt-2 font-[var(--font-display)] text-3xl font-extrabold">{topics.length}</h2>
+          <p className="muted mt-2 text-sm">悩み別に相談できるテーマ数</p>
         </article>
         <article className="surface rounded-2xl p-4">
-          <p className="text-xs text-slate-400">Posts</p>
-          <h2 className="mt-2 text-2xl font-semibold">{posts.length}</h2>
-          <p className="mt-2 text-sm text-slate-300">最新投稿数（表示中）</p>
+          <p className="text-xs text-slate-400">コミュニティ投稿</p>
+          <h2 className="mt-2 font-[var(--font-display)] text-3xl font-extrabold">{posts.length}</h2>
+          <p className="muted mt-2 text-sm">最近のリアルな体験シェア</p>
         </article>
       </section>
 
       <section className="mt-5 grid gap-3 md:grid-cols-2">
         <article className="surface rounded-2xl p-4">
-          <h3 className="text-lg font-semibold">開発方針</h3>
-          <ul className="mt-2 grid gap-2 text-sm text-slate-300">
-            <li>• Next.js App Router + NestJS + PostgreSQL</li>
-            <li>• Prismaによるスキーマ駆動開発</li>
-            <li>• 外部APIキーをサーバー側で保護</li>
-            <li>• コミュニティはモデレーション前提で拡張</li>
+          <h3 className="font-[var(--font-display)] text-lg font-bold">新米ママ・パパ向けに大切にしていること</h3>
+          <ul className="muted mt-3 grid gap-2 text-sm">
+            <li>・月齢とアレルゲンを先に確認して、迷いを減らす</li>
+            <li>・平日でも作れる時短レシピを中心にする</li>
+            <li>・「これで合ってる？」を相談できる場を用意する</li>
+            <li>・情報は見つけやすく、やさしい言葉で届ける</li>
           </ul>
         </article>
         <article className="surface rounded-2xl p-4">
-          <h3 className="text-lg font-semibold">次フェーズ候補</h3>
-          <ul className="mt-2 grid gap-2 text-sm text-slate-300">
-            <li>• OAuth認証（Google/LINE）</li>
-            <li>• 通報・ブロック・管理画面</li>
-            <li>• 献立生成と買い物リスト</li>
-            <li>• レコメンドと通知最適化</li>
+          <h3 className="font-[var(--font-display)] text-lg font-bold">これから追加予定の機能</h3>
+          <ul className="muted mt-3 grid gap-2 text-sm">
+            <li>・お子さまの記録に合わせたおすすめ献立</li>
+            <li>・1週間の買い物リスト自動作成</li>
+            <li>・アレルギー対応の材料置き換え提案</li>
+            <li>・家族で共有できる食事メモ</li>
           </ul>
         </article>
       </section>

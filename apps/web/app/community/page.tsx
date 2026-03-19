@@ -6,16 +6,18 @@ export default async function CommunityPage() {
   return (
     <main className="pb-16 pt-8 md:pt-12">
       <section className="surface rounded-3xl p-6 md:p-8">
-        <p className="text-xs tracking-[0.16em] text-cyan-300">COMMUNITY</p>
-        <h1 className="mt-3 text-3xl font-semibold md:text-4xl">子育てコミュニティ</h1>
-        <p className="mt-3 text-sm text-slate-300 md:text-base">月齢・悩みテーマ別に、保護者同士で相談と情報交換ができる設計です。</p>
+        <p className="eyebrow">PARENT COMMUNITY</p>
+        <h1 className="mt-3 font-[var(--font-display)] text-3xl font-extrabold md:text-4xl">相談ひろば</h1>
+        <p className="muted mt-3 text-sm md:text-base">
+          同じ時期のママ・パパと、離乳食の進め方や悩みを気軽に共有できる場所です。
+        </p>
       </section>
 
       <section className="mt-5 grid gap-3 md:grid-cols-3">
         {topics.map((topic) => (
           <article key={topic.id} className="surface rounded-2xl p-4">
             <h2 className="text-base font-semibold">{topic.name}</h2>
-            <p className="mt-2 text-sm text-slate-300">{topic.description}</p>
+            <p className="muted mt-2 text-sm">{topic.description}</p>
             <p className="mt-3 text-xs text-slate-400">投稿数: {topic._count?.posts ?? 0}</p>
           </article>
         ))}
@@ -36,7 +38,7 @@ export default async function CommunityPage() {
               ) : null}
             </div>
             <h2 className="mt-2 text-lg font-semibold">{post.title}</h2>
-            <p className="mt-2 text-sm text-slate-300">{post.body}</p>
+            <p className="muted mt-2 text-sm">{post.body}</p>
             <p className="mt-3 text-xs text-slate-400">
               投稿者: {post.author.displayName} / コメント: {post._count?.comments ?? 0}
             </p>

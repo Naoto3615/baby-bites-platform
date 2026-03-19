@@ -101,35 +101,35 @@ export default function StudioPage() {
   return (
     <main className="pb-16 pt-8 md:pt-12">
       <section className="surface rounded-3xl p-6 md:p-8">
-        <p className="text-xs tracking-[0.16em] text-cyan-300">STUDIO</p>
-        <h1 className="mt-3 text-3xl font-semibold md:text-4xl">レシピ投稿と画像アップロード</h1>
-        <p className="mt-3 text-sm text-slate-300 md:text-base">
-          認証済みユーザーでレシピ作成し、続けて画像をアップロードできます。
+        <p className="eyebrow">RECIPE STUDIO</p>
+        <h1 className="mt-3 font-[var(--font-display)] text-3xl font-extrabold md:text-4xl">わが家のレシピをシェア</h1>
+        <p className="muted mt-3 text-sm md:text-base">
+          つくりやすかった離乳食を投稿して、同じ月齢のご家庭と共有できます。
         </p>
-        {message ? <p className="mt-4 text-sm text-cyan-200">{message}</p> : null}
+        {message ? <p className="notice mt-4 text-sm">{message}</p> : null}
       </section>
 
       <section className="mt-5 grid gap-3 md:grid-cols-2">
         <article className="surface rounded-2xl p-4">
           <h2 className="text-lg font-semibold">1. レシピ作成</h2>
           <form className="mt-3 grid gap-2" onSubmit={handleCreateRecipe}>
-            <input className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="タイトル" />
-            <textarea className="min-h-20 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="説明" />
-            <select className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm" value={stage} onChange={(e) => setStage(e.target.value as FeedingStage)}>
+            <input className="field px-3 py-2 text-sm" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="タイトル" />
+            <textarea className="field min-h-20 px-3 py-2 text-sm" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="説明" />
+            <select className="field px-3 py-2 text-sm" value={stage} onChange={(e) => setStage(e.target.value as FeedingStage)}>
               {stages.map((item) => (
                 <option key={item} value={item}>{item}</option>
               ))}
             </select>
             <div className="grid grid-cols-3 gap-2">
-              <input className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm" type="number" min={0} value={prepMinutes} onChange={(e) => setPrepMinutes(Number(e.target.value))} placeholder="準備" />
-              <input className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm" type="number" min={0} value={cookMinutes} onChange={(e) => setCookMinutes(Number(e.target.value))} placeholder="調理" />
-              <input className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm" type="number" min={1} value={servings} onChange={(e) => setServings(Number(e.target.value))} placeholder="食分" />
+              <input className="field px-3 py-2 text-sm" type="number" min={0} value={prepMinutes} onChange={(e) => setPrepMinutes(Number(e.target.value))} placeholder="準備" />
+              <input className="field px-3 py-2 text-sm" type="number" min={0} value={cookMinutes} onChange={(e) => setCookMinutes(Number(e.target.value))} placeholder="調理" />
+              <input className="field px-3 py-2 text-sm" type="number" min={1} value={servings} onChange={(e) => setServings(Number(e.target.value))} placeholder="食分" />
             </div>
-            <input className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm" value={allergens} onChange={(e) => setAllergens(e.target.value)} placeholder="アレルゲン (カンマ区切り)" />
-            <input className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="タグ (カンマ区切り)" />
-            <textarea className="min-h-24 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm" value={ingredientsText} onChange={(e) => setIngredientsText(e.target.value)} placeholder="材料: 1行1件 (name|amount|note)" />
-            <textarea className="min-h-24 rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm" value={stepsText} onChange={(e) => setStepsText(e.target.value)} placeholder="手順: 1行1件" />
-            <button className="rounded-lg bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-900" type="submit" disabled={!token}>作成</button>
+            <input className="field px-3 py-2 text-sm" value={allergens} onChange={(e) => setAllergens(e.target.value)} placeholder="アレルゲン (カンマ区切り)" />
+            <input className="field px-3 py-2 text-sm" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="タグ (カンマ区切り)" />
+            <textarea className="field min-h-24 px-3 py-2 text-sm" value={ingredientsText} onChange={(e) => setIngredientsText(e.target.value)} placeholder="材料: 1行1件 (name|amount|note)" />
+            <textarea className="field min-h-24 px-3 py-2 text-sm" value={stepsText} onChange={(e) => setStepsText(e.target.value)} placeholder="手順: 1行1件" />
+            <button className="btn-main px-4 py-2 text-sm" type="submit" disabled={!token}>作成</button>
           </form>
           {createdRecipeId ? <p className="mt-2 text-xs text-slate-300">作成済みID: {createdRecipeId}</p> : null}
         </article>
@@ -137,10 +137,10 @@ export default function StudioPage() {
         <article className="surface rounded-2xl p-4">
           <h2 className="text-lg font-semibold">2. 画像アップロード</h2>
           <form className="mt-3 grid gap-2" onSubmit={handleUploadImage}>
-            <input className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm" placeholder="recipeId" value={imageRecipeId} onChange={(e) => setImageRecipeId(e.target.value)} />
-            <input className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm" placeholder="caption" value={imageCaption} onChange={(e) => setImageCaption(e.target.value)} />
-            <input className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm" type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] ?? null)} />
-            <button className="rounded-lg bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-900" type="submit" disabled={!token}>アップロード</button>
+            <input className="field px-3 py-2 text-sm" placeholder="recipeId" value={imageRecipeId} onChange={(e) => setImageRecipeId(e.target.value)} />
+            <input className="field px-3 py-2 text-sm" placeholder="caption" value={imageCaption} onChange={(e) => setImageCaption(e.target.value)} />
+            <input className="field px-3 py-2 text-sm" type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files?.[0] ?? null)} />
+            <button className="btn-main px-4 py-2 text-sm" type="submit" disabled={!token}>アップロード</button>
           </form>
           <p className="mt-2 text-xs text-slate-400">最大5MBの画像ファイルに対応しています。</p>
         </article>

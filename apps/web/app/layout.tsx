@@ -1,16 +1,18 @@
 import type { Metadata } from 'next';
-import { Noto_Sans_JP, Sora } from 'next/font/google';
+import { M_PLUS_Rounded_1c, Nunito } from 'next/font/google';
 import { SiteNav } from './components/site-nav';
 import './globals.css';
 
-const sora = Sora({
-  variable: '--font-sora',
+const nunito = Nunito({
+  variable: '--font-ui-display',
   subsets: ['latin'],
+  weight: ['500', '700', '800'],
 });
 
-const notoSansJp = Noto_Sans_JP({
+const roundedJp = M_PLUS_Rounded_1c({
   variable: '--font-jp',
   subsets: ['latin'],
+  weight: ['400', '500', '700', '800'],
 });
 
 export const metadata: Metadata = {
@@ -20,8 +22,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ja" className={`${sora.variable} ${notoSansJp.variable}`}>
-      <body className="min-h-screen bg-slate-950 text-slate-100">
+    <html lang="ja" className={`${nunito.variable} ${roundedJp.variable}`}>
+      <body className="min-h-screen">
         <SiteNav />
         {children}
       </body>
