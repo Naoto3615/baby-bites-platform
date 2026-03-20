@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getRecipes } from '../lib/api';
 
 const stageLabel: Record<string, string> = {
@@ -23,29 +24,32 @@ export default async function RecipesPage() {
 
       <section className="mt-5 grid-cards">
         {recipes.map((recipe) => (
-          <article key={recipe.id} className="surface rounded-2xl p-4">
-            {recipe.coverImageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={`${apiBase}${recipe.coverImageUrl}`}
-                alt={recipe.title}
-                className="mb-3 h-40 w-full rounded-xl object-cover"
-              />
-            ) : null}
-            <p className="text-xs text-cyan-200">対象: {stageLabel[recipe.stage] ?? recipe.stage}</p>
-            <h2 className="mt-2 text-lg font-semibold">{recipe.title}</h2>
-            <p className="muted mt-2 text-sm">{recipe.description}</p>
-            <p className="mt-3 text-xs text-slate-400">
-              準備 {recipe.prepMinutes}分 / 調理 {recipe.cookMinutes}分 / {recipe.servings}食分
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {recipe.tags.map((tag) => (
-                <span key={tag.id} className="rounded-full border border-slate-600 px-2 py-1 text-xs text-slate-300">
-                  #{tag.value}
-                </span>
-              ))}
-            </div>
-          </article>
+          <Link key={recipe.id} href={`/recipes/${recipe.id}`} className="group block">
+            <article className="surface rounded-2xl p-4 transition group-hover:-translate-y-0.5">
+              {recipe.coverImageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={`${apiBase}${recipe.coverImageUrl}`}
+                  alt={recipe.title}
+                  className="mb-3 h-40 w-full rounded-xl object-cover"
+                />
+              ) : null}
+              <p className="text-xs text-cyan-200">対象: {stageLabel[recipe.stage] ?? recipe.stage}</p>
+              <h2 className="mt-2 text-lg font-semibold">{recipe.title}</h2>
+              <p className="muted mt-2 text-sm">{recipe.description}</p>
+              <p className="mt-3 text-xs text-slate-400">
+                準備 {recipe.prepMinutes}分 / 調理 {recipe.cookMinutes}分 / {recipe.servings}食分
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {recipe.tags.map((tag) => (
+                  <span key={tag.id} className="rounded-full border border-slate-600 px-2 py-1 text-xs text-slate-300">
+                    #{tag.value}
+                  </span>
+                ))}
+              </div>
+              <p className="mt-4 text-sm text-cyan-200 group-hover:underline">詳細を見る →</p>
+            </article>
+          </Link>
         ))}
       </section>
     </main>

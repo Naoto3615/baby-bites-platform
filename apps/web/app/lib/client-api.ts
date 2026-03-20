@@ -1,6 +1,8 @@
 import {
   AuthUser,
+  CommunityPost,
   ModerationActionType,
+  Recipe,
   ReportItem,
   ReportStatus,
   ReportTargetType,
@@ -135,6 +137,64 @@ export async function uploadRecipeImage(
     {
       method: 'POST',
       body,
+    },
+    accessToken,
+  );
+}
+
+export async function getMyRecipes(accessToken: string) {
+  return request<{ items: Recipe[] }>('/recipes/mine?limit=50', {}, accessToken);
+}
+
+export async function updateMyRecipe(
+  accessToken: string,
+  recipeId: string,
+  payload: {
+    title?: string;
+    description?: string;
+    stage?: 'STAGE_5_6' | 'STAGE_7_8' | 'STAGE_9_11' | 'STAGE_12_18';
+    prepMinutes?: number;
+    cookMinutes?: number;
+    servings?: number;
+    allergens?: string[];
+    tags?: string[];
+    coverImageUrl?: string;
+    published?: boolean;
+  },
+) {
+  return request<Recipe>(
+    `/recipes/${recipeId}`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    },
+    accessToken,
+  );
+}
+
+export async function getMyCommunityPosts(accessToken: string) {
+  return request<{ items: CommunityPost[] }>(
+    '/community/posts/mine?limit=50',
+    {},
+    accessToken,
+  );
+}
+
+export async function updateMyCommunityPost(
+  accessToken: string,
+  postId: string,
+  payload: {
+    topicId?: string;
+    title?: string;
+    body?: string;
+    stage?: 'STAGE_5_6' | 'STAGE_7_8' | 'STAGE_9_11' | 'STAGE_12_18';
+  },
+) {
+  return request<CommunityPost>(
+    `/community/posts/${postId}`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
     },
     accessToken,
   );

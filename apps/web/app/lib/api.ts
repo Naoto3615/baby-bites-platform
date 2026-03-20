@@ -13,6 +13,20 @@ const fallbackRecipes: Recipe[] = [
     servings: 4,
     allergens: [],
     tags: [{ id: 't1', value: '時短' }],
+    ingredients: [
+      { id: 'i1', name: 'にんじん', amount: '30g', order: 1 },
+      { id: 'i2', name: 'じゃがいも', amount: '40g', order: 2 },
+      { id: 'i3', name: '湯冷まし', amount: '適量', order: 3 },
+    ],
+    steps: [
+      { id: 's1', order: 1, instruction: 'やわらかく茹でる' },
+      { id: 's2', order: 2, instruction: 'なめらかになるまでつぶす' },
+      { id: 's3', order: 3, instruction: '濃度を調整する' },
+    ],
+    author: {
+      id: 'demo-user',
+      displayName: 'デモ保護者',
+    },
   },
 ];
 
@@ -46,6 +60,21 @@ export async function getRecipes(): Promise<Recipe[]> {
     return data.items ?? fallbackRecipes;
   } catch {
     return fallbackRecipes;
+  }
+}
+
+export async function getRecipeById(id: string): Promise<Recipe | null> {
+  try {
+    const res = await fetch(`${API_BASE}/recipes/${id}`, { cache: 'no-store' });
+    if (!res.ok) {
+      if (res.status === 404) {
+        return null;
+      }
+      throw new Error('failed');
+    }
+    return (await res.json()) as Recipe;
+  } catch {
+    return fallbackRecipes.find((recipe) => recipe.id === id) ?? null;
   }
 }
 

@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   ParseFilePipeBuilder,
   Post,
   Query,
@@ -18,6 +19,7 @@ import type { AuthenticatedUser } from '../auth/types/auth-user.type';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { RecipeQueryDto } from './dto/recipe-query.dto';
 import { UploadRecipeImageDto } from './dto/upload-recipe-image.dto';
+import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { RecipesService } from './recipes.service';
 import type { UploadedImageFile } from './uploaded-image-file.type';
 
@@ -32,6 +34,16 @@ export class RecipesController {
     return this.recipesService.findAll(query);
   }
 
+  @Get('mine')
+  @UseGuards(SessionAuthGuard)
+  @ApiOperation({ summary: 'ログインユーザーのレシピ一覧を取得' })
+  findMine(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: RecipeQueryDto,
+  ) {
+    return this.recipesService.findMine(user.id, query);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: '離乳食レシピ詳細を取得' })
   findOne(@Param('id') id: string) {
@@ -43,6 +55,17 @@ export class RecipesController {
   @ApiOperation({ summary: '離乳食レシピを作成（ログイン必須）' })
   create(@Body() dto: CreateRecipeDto, @CurrentUser() user: AuthenticatedUser) {
     return this.recipesService.create(dto, user.id);
+  }
+
+  @Patch(':id')
+  @UseGuards(SessionAuthGuard)
+  @ApiOperation({ summary: '自分の離乳食レシピを更新（ログイン必須）' })
+  updateMine(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: UpdateRecipeDto,
+  ) {
+    return this.recipesService.updateMine(id, user.id, dto);
   }
 
   @Post(':id/images')

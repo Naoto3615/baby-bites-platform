@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -15,6 +16,7 @@ import { CommunityService } from './community.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { CommunityQueryDto } from './dto/community-query.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 @ApiTags('community')
 @Controller('community')
@@ -33,6 +35,16 @@ export class CommunityController {
     return this.communityService.getPosts(query);
   }
 
+  @Get('posts/mine')
+  @UseGuards(SessionAuthGuard)
+  @ApiOperation({ summary: 'ログインユーザーのコミュニティ投稿一覧を取得' })
+  getMyPosts(
+    @CurrentUser() user: AuthenticatedUser,
+    @Query() query: CommunityQueryDto,
+  ) {
+    return this.communityService.getMyPosts(user.id, query);
+  }
+
   @Post('posts')
   @UseGuards(SessionAuthGuard)
   @ApiOperation({ summary: 'コミュニティ投稿を作成（ログイン必須）' })
@@ -41,6 +53,17 @@ export class CommunityController {
     @CurrentUser() user: AuthenticatedUser,
   ) {
     return this.communityService.createPost(dto, user.id);
+  }
+
+  @Patch('posts/:postId')
+  @UseGuards(SessionAuthGuard)
+  @ApiOperation({ summary: '自分のコミュニティ投稿を更新（ログイン必須）' })
+  updateMyPost(
+    @Param('postId') postId: string,
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: UpdatePostDto,
+  ) {
+    return this.communityService.updateMyPost(postId, user.id, dto);
   }
 
   @Post('posts/:postId/comments')

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { randomUUID } from 'crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -6,11 +10,26 @@ import { extname, join } from 'node:path';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRecipeDto } from './dto/create-recipe.dto';
 import { RecipeQueryDto } from './dto/recipe-query.dto';
+import { UpdateRecipeDto } from './dto/update-recipe.dto';
 import { UploadedImageFile } from './uploaded-image-file.type';
 
 @Injectable()
 export class RecipesService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private readonly recipeInclude = {
+    tags: true,
+    images: { orderBy: { uploadedAt: 'asc' as const } },
+    ingredients: { orderBy: { order: 'asc' as const } },
+    steps: { orderBy: { order: 'asc' as const } },
+    author: {
+      select: {
+        id: true,
+        displayName: true,
+        avatarUrl: true,
+      },
+    },
+  };
 
   async findAll(query: RecipeQueryDto) {
     const where: Prisma.RecipeWhereInput = {
@@ -26,19 +45,34 @@ export class RecipesService {
         skip: query.offset,
         take: query.limit,
         orderBy: { createdAt: 'desc' },
-        include: {
-          tags: true,
-          images: { orderBy: { uploadedAt: 'asc' } },
-          ingredients: { orderBy: { order: 'asc' } },
-          steps: { orderBy: { order: 'asc' } },
-          author: {
-            select: {
-              id: true,
-              displayName: true,
-              avatarUrl: true,
-            },
-          },
-        },
+        include: this.recipeInclude,
+      }),
+      this.prisma.recipe.count({ where }),
+    ]);
+
+    return {
+      total,
+      limit: query.limit,
+      offset: query.offset,
+      items,
+    };
+  }
+
+  async findMine(userId: string, query: RecipeQueryDto) {
+    const where: Prisma.RecipeWhereInput = {
+      authorId: userId,
+      ...(query.stage ? { stage: query.stage } : {}),
+      ...(query.allergen ? { allergens: { has: query.allergen } } : {}),
+      isHidden: false,
+    };
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.recipe.findMany({
+        where,
+        skip: query.offset,
+        take: query.limit,
+        orderBy: { updatedAt: 'desc' },
+        include: this.recipeInclude,
       }),
       this.prisma.recipe.count({ where }),
     ]);
@@ -54,19 +88,7 @@ export class RecipesService {
   async findOne(id: string) {
     const recipe = await this.prisma.recipe.findFirst({
       where: { id, isHidden: false },
-      include: {
-        tags: true,
-        images: { orderBy: { uploadedAt: 'asc' } },
-        ingredients: { orderBy: { order: 'asc' } },
-        steps: { orderBy: { order: 'asc' } },
-        author: {
-          select: {
-            id: true,
-            displayName: true,
-            avatarUrl: true,
-          },
-        },
-      },
+      include: this.recipeInclude,
     });
 
     if (!recipe) {
@@ -121,6 +143,87 @@ export class RecipesService {
         ingredients: { orderBy: { order: 'asc' } },
         steps: { orderBy: { order: 'asc' } },
       },
+    });
+  }
+
+  async updateMine(recipeId: string, userId: string, dto: UpdateRecipeDto) {
+    const current = await this.prisma.recipe.findUnique({
+      where: { id: recipeId },
+      select: { id: true, authorId: true, isHidden: true },
+    });
+
+    if (!current || current.isHidden) {
+      throw new NotFoundException('Recipe not found');
+    }
+
+    if (current.authorId !== userId) {
+      throw new ForbiddenException('You can only edit your own recipe');
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      const data: Prisma.RecipeUpdateInput = {};
+
+      if (dto.title !== undefined) data.title = dto.title;
+      if (dto.description !== undefined) data.description = dto.description;
+      if (dto.stage !== undefined) data.stage = dto.stage;
+      if (dto.prepMinutes !== undefined) data.prepMinutes = dto.prepMinutes;
+      if (dto.cookMinutes !== undefined) data.cookMinutes = dto.cookMinutes;
+      if (dto.servings !== undefined) data.servings = dto.servings;
+      if (dto.allergens !== undefined) data.allergens = dto.allergens;
+      if (dto.coverImageUrl !== undefined)
+        data.coverImageUrl = dto.coverImageUrl;
+      if (dto.published !== undefined) data.published = dto.published;
+
+      if (Object.keys(data).length > 0) {
+        await tx.recipe.update({
+          where: { id: recipeId },
+          data,
+        });
+      }
+
+      if (dto.tags !== undefined) {
+        await tx.recipeTag.deleteMany({ where: { recipeId } });
+        if (dto.tags.length > 0) {
+          await tx.recipeTag.createMany({
+            data: dto.tags.map((value) => ({ recipeId, value })),
+          });
+        }
+      }
+
+      if (dto.ingredients !== undefined) {
+        await tx.recipeIngredient.deleteMany({ where: { recipeId } });
+        if (dto.ingredients.length > 0) {
+          await tx.recipeIngredient.createMany({
+            data: dto.ingredients.map((ingredient, index) => ({
+              recipeId,
+              name: ingredient.name,
+              amount: ingredient.amount,
+              note: ingredient.note,
+              order: index + 1,
+            })),
+          });
+        }
+      }
+
+      if (dto.steps !== undefined) {
+        await tx.recipeStep.deleteMany({ where: { recipeId } });
+        if (dto.steps.length > 0) {
+          await tx.recipeStep.createMany({
+            data: dto.steps
+              .sort((a, b) => a.order - b.order)
+              .map((step) => ({
+                recipeId,
+                order: step.order,
+                instruction: step.instruction,
+              })),
+          });
+        }
+      }
+    });
+
+    return this.prisma.recipe.findUnique({
+      where: { id: recipeId },
+      include: this.recipeInclude,
     });
   }
 

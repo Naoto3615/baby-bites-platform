@@ -26,6 +26,23 @@ export type Recipe = {
     url: string;
     caption?: string | null;
   }[];
+  ingredients?: {
+    id: string;
+    name: string;
+    amount: string;
+    note?: string | null;
+    order: number;
+  }[];
+  steps?: {
+    id: string;
+    order: number;
+    instruction: string;
+  }[];
+  author?: {
+    id: string;
+    displayName: string;
+    avatarUrl?: string | null;
+  };
 };
 
 export type Topic = {

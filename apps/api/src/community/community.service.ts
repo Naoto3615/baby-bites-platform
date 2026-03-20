@@ -1,12 +1,42 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { CommunityQueryDto } from './dto/community-query.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 @Injectable()
 export class CommunityService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private readonly postInclude = {
+    topic: true,
+    author: {
+      select: {
+        id: true,
+        displayName: true,
+        avatarUrl: true,
+      },
+    },
+    comments: {
+      where: { isHidden: false },
+      orderBy: { createdAt: 'asc' as const },
+      include: {
+        author: {
+          select: {
+            id: true,
+            displayName: true,
+            avatarUrl: true,
+          },
+        },
+      },
+    },
+    _count: { select: { comments: true } },
+  };
 
   async getTopics() {
     return this.prisma.communityTopic.findMany({
@@ -27,30 +57,33 @@ export class CommunityService {
         skip: query.offset,
         take: query.limit,
         orderBy: { createdAt: 'desc' },
-        include: {
-          topic: true,
-          author: {
-            select: {
-              id: true,
-              displayName: true,
-              avatarUrl: true,
-            },
-          },
-          comments: {
-            where: { isHidden: false },
-            orderBy: { createdAt: 'asc' },
-            include: {
-              author: {
-                select: {
-                  id: true,
-                  displayName: true,
-                  avatarUrl: true,
-                },
-              },
-            },
-          },
-          _count: { select: { comments: true } },
-        },
+        include: this.postInclude,
+      }),
+      this.prisma.communityPost.count({ where }),
+    ]);
+
+    return {
+      total,
+      limit: query.limit,
+      offset: query.offset,
+      items,
+    };
+  }
+
+  async getMyPosts(userId: string, query: CommunityQueryDto) {
+    const where = {
+      ...(query.topicId ? { topicId: query.topicId } : {}),
+      authorId: userId,
+      isHidden: false,
+    };
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.communityPost.findMany({
+        where,
+        skip: query.offset,
+        take: query.limit,
+        orderBy: { updatedAt: 'desc' },
+        include: this.postInclude,
       }),
       this.prisma.communityPost.count({ where }),
     ]);
@@ -91,6 +124,47 @@ export class CommunityService {
         author: true,
       },
     });
+  }
+
+  async updateMyPost(postId: string, userId: string, dto: UpdatePostDto) {
+    const post = await this.prisma.communityPost.findUnique({
+      where: { id: postId },
+      select: {
+        id: true,
+        authorId: true,
+        isHidden: true,
+      },
+    });
+
+    if (!post || post.isHidden) {
+      throw new NotFoundException('Post not found');
+    }
+
+    if (post.authorId !== userId) {
+      throw new ForbiddenException('You can only edit your own post');
+    }
+
+    if (dto.topicId !== undefined) {
+      const topicExists = await this.prisma.communityTopic.findUnique({
+        where: { id: dto.topicId },
+      });
+      if (!topicExists) {
+        throw new NotFoundException('Topic not found');
+      }
+    }
+
+    const updated = await this.prisma.communityPost.update({
+      where: { id: postId },
+      data: {
+        topicId: dto.topicId,
+        title: dto.title,
+        body: dto.body,
+        stage: dto.stage,
+      },
+      include: this.postInclude,
+    });
+
+    return updated;
   }
 
   async createComment(postId: string, dto: CreateCommentDto, authorId: string) {

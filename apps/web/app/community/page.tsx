@@ -1,4 +1,5 @@
 import { getCommunityPosts, getTopics } from '../lib/api';
+import MyPostEditor from './my-post-editor';
 
 export default async function CommunityPage() {
   const [topics, posts] = await Promise.all([getTopics(), getCommunityPosts()]);
@@ -22,6 +23,8 @@ export default async function CommunityPage() {
           </article>
         ))}
       </section>
+
+      <MyPostEditor />
 
       <section className="mt-5 grid gap-3">
         {posts.map((post) => (
